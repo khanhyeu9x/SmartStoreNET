@@ -44,6 +44,8 @@
     <IISExpressUseClassicPipelineMode />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <Use64BitIISExpress />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -989,6 +991,14 @@
     <Content Include="Content\vendors\moment\locale\zh-hk.js" />
     <Content Include="Content\vendors\moment\moment.js" />
     <Content Include="Content\vendors\moment\moment.min.js" />
+    <Content Include="Content\vendors\OwlCarousel2\ajax-loader.gif" />
+    <Content Include="Content\vendors\OwlCarousel2\owl.carousel.css" />
+    <Content Include="Content\vendors\OwlCarousel2\owl.carousel.min.css" />
+    <Content Include="Content\vendors\OwlCarousel2\owl.theme.default.css" />
+    <Content Include="Content\vendors\OwlCarousel2\owl.theme.default.min.css" />
+    <Content Include="Content\vendors\OwlCarousel2\owl.theme.green.css" />
+    <Content Include="Content\vendors\OwlCarousel2\owl.theme.green.min.css" />
+    <Content Include="Content\vendors\OwlCarousel2\owl.video.play.png" />
     <Content Include="Content\vendors\photoswipe\photoswipe-ui-default.js" />
     <Content Include="Content\vendors\photoswipe\photoswipe-ui-default.min.js" />
     <Content Include="Content\vendors\photoswipe\photoswipe.js" />
@@ -1226,6 +1236,7 @@
     <Content Include="Content\vendors\jquery\jquery.validate.unobtrusive.js" />
     <Content Include="Content\vendors\jquery\jquery.validate.unobtrusive.min.js" />
     <Content Include="Content\vendors\modernizr\modernizr.js" />
+    <Content Include="Content\vendors\OwlCarousel2\owl.carousel.min.js" />
     <Content Include="Scripts\smartstore.linkbuilder.js" />
     <Content Include="Scripts\smartstore.rangeslider.js" />
     <Content Include="Scripts\smartstore.keynav.js" />

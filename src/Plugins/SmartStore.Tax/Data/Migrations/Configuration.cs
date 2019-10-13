@@ -9,7 +9,7 @@
 	{
 		public Configuration()
 		{
-			AutomaticMigrationsEnabled = false;
+			AutomaticMigrationsEnabled = true;
 			MigrationsDirectory = @"Data\Migrations";
 			ContextKey = "SmartStore.TaxCountryStateZip"; // DO NOT CHANGE
 		}

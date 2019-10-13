@@ -105,6 +105,11 @@
 					.ClientTemplate("<a href='<#= PictureUrl #>' target='_blank'><img alt='<#= PictureId #>' src='<#= PictureUrl #>' style='max-height: 100px' /><a/>")
 					.ReadOnly();
 				columns.Bound(x => x.DisplayOrder).Width(100).Centered();
+				columns.Bound(x => x.DisplayOrder).Width(100).Centered();
+                
+                columns.Bound(x => x.PictureId)
+                .ClientTemplate("<a href='/admin/Product/ProductPictureWatermark?pictureId=<#= PictureId #>&productId=<#= ProductId #>' target='_blank'>Export Watermark<a/>")
+                .ReadOnly();
 				columns.Command(commands =>
 				{
 					commands.Edit().Localize(T);

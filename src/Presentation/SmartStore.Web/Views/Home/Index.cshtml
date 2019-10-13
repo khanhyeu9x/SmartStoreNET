@@ -1,41 +1,74 @@
 ﻿@{
-	Layout = "_Layout";
-	Html.AddBodyCssClass("home");
+    Layout = "_Layout";
+    Html.AddBodyCssClass("home");
 }
 
 <div class="page home-page">
     <div class="page-body">
-		@{
-			Html.RenderWidget("home_page_top");
+        @{
+            Html.RenderWidget("home_page_top");
+            <div class="row">
+                <div class="col-md-8">
+                            <div class="owl-carousel owl-theme owl-loaded" id="homepage_slider">
+                                <div class="owl-stage-outer">
+                                    <div class="owl-stage" style="width: 3789px; transform: translate3d(0px, 0px, 0px); transition: all 0s ease 0s;">
+                                        <div class="owl-item">
+                                            <div class="item">
+                                                <a href="?utm_newarrival%3Futm_source=wb&amp;utm_medium=thudong&amp;utm_campaign=ship">
+                                                    <img title="" alt="" src="//theme.hstatic.net/1000290074/1000480225/14/slideshow_1.jpg?v=385">
+                                                </a>
+                                            </div>
+                                        </div><div class="owl-item">
+                                            <div class="item">
+                                                <a href="/collections/all">
+                                                    <img title="Sản phẩm nổi bật" alt="Sản phẩm nổi bật" src="//theme.hstatic.net/1000290074/1000480225/14/slideshow_2.jpg?v=385">
+                                                </a>
+                                            </div>
+                                        </div><div class="owl-item">
+                                            <div class="item">
+                                                <a href="/collections/all">
+                                                    <img title="Sản phẩm nổi bật" alt="Sản phẩm nổi bật" src="//theme.hstatic.net/1000290074/1000480225/14/slideshow_3.jpg?v=385">
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                </div>
+                <div class="col-md-4">
+                    <a class="link-banner" href="/collections/thu-dong-2019?utm_newarrival?utm_source=wb&amp;utm_medium=thudong&amp;utm_campaign=ship">
+                        <img style="max-width:100%" class="" src="//theme.hstatic.net/1000290074/1000480225/14/block_home_category3.jpg?v=385" alt="">
+                    </a>
+                </div>
+            </div>
+            //Html.RenderAction("TopicBlock", "Topic", new { systemName = "HomePageText", isLead = true });
+            Html.RenderWidget("home_page_after_intro");
 
-			Html.RenderAction("TopicBlock", "Topic", new { systemName = "HomePageText", isLead = true });
-			Html.RenderWidget("home_page_after_intro");
+            Html.RenderAction("HomepageCategories", "Catalog");
+            Html.RenderWidget("home_page_after_categories");
 
-			Html.RenderAction("HomepageCategories", "Catalog");
-			Html.RenderWidget("home_page_after_categories");
+            Html.RenderAction("HomepageProducts", "Catalog");
+            Html.RenderWidget("home_page_after_products");
 
-			Html.RenderAction("HomepageProducts", "Catalog");
-			Html.RenderWidget("home_page_after_products");
+            Html.RenderAction("HomepageBestSellers", "Catalog");
+            Html.RenderWidget("home_page_after_bestsellers");
 
-			Html.RenderAction("HomepageBestSellers", "Catalog");
-			Html.RenderWidget("home_page_after_bestsellers");
+            Html.RenderAction("HomepageManufacturers", "Catalog");
+            Html.RenderWidget("home_page_after_manufacturers");
 
-			Html.RenderAction("HomepageManufacturers", "Catalog");
-			Html.RenderWidget("home_page_after_manufacturers");
+            Html.RenderAction("PopularProductTags", "Catalog", new { area = "" });
+            Html.RenderWidget("home_page_after_tags");
 
-			Html.RenderAction("PopularProductTags", "Catalog", new { area = "" });
-			Html.RenderWidget("home_page_after_tags");
+            Html.RenderAction("HomePageNews", "News");
+            Html.RenderWidget("home_page_after_news");
 
-			Html.RenderAction("HomePageNews", "News");
-			Html.RenderWidget("home_page_after_news");
+            Html.RenderAction("HomePagePolls", "Poll");
+            Html.RenderWidget("home_page_after_polls");
 
-			Html.RenderAction("HomePagePolls", "Poll");
-			Html.RenderWidget("home_page_after_polls");
-
-			@* TODO: (mc) find more intelligent way of rendering RecentlyViewedProductsBlock globally *@
+            @* TODO: (mc) find more intelligent way of rendering RecentlyViewedProductsBlock globally *@
             Html.RenderAction("RecentlyViewedProductsBlock", "Catalog", new { area = "" });
 
             Html.RenderWidget("home_page_bottom");
-		}
+        }
     </div>
 </div>

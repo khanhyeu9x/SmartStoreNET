@@ -9,7 +9,7 @@ namespace SmartStore.ShippingByWeight.Data.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = false;
+            AutomaticMigrationsEnabled = true;
             MigrationsDirectory = @"Data\Migrations";
 			ContextKey = "SmartStore.ShippingByWeight";
         }

@@ -9,7 +9,7 @@ namespace SmartStore.Shipping.Data.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = false;
+            AutomaticMigrationsEnabled = true;
             MigrationsDirectory = @"Data\Migrations";
 			ContextKey = "SmartStore.ShippingByTotal";
         }

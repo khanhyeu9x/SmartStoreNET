@@ -912,7 +912,7 @@ namespace SmartStore.Admin.Controllers
                 .OrderBy(x => x.Text)
                 .Select(x =>
                 {
-                    if (paymentMethodsCounts[x.Text] > 1)
+                    if (paymentMethodsCounts.ContainsKey(x.Text) && paymentMethodsCounts[x.Text] > 1)
                     {
                         x.Text = "{0} ({1})".FormatInvariant(x.Text, x.Value);
                     }

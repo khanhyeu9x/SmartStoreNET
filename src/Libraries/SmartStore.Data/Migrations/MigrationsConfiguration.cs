@@ -12,7 +12,7 @@
 	{
 		public MigrationsConfiguration()
 		{
-			AutomaticMigrationsEnabled = false;
+			AutomaticMigrationsEnabled = true;
 			AutomaticMigrationDataLossAllowed = true;
 			ContextKey = "SmartStore.Core";
 

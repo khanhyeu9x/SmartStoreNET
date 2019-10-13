@@ -196,3 +196,13 @@
 
 })( jQuery, this, document );
 
+
+$('#homepage_slider').owlCarousel({
+    items: 1,
+    lazyLoad: true,
+    loop: true,
+    margin: 10,
+    autoplay: true,
+    autoplayTimeout: 3000,
+    autoplayHoverPause: true
+});

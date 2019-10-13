@@ -708,6 +708,7 @@
     <Compile Include="Utilities\Threading\WriteLockDisposable.cs" />
     <Compile Include="Utilities\Throttle.cs" />
     <Compile Include="Utilities\TypeHelper.cs" />
+    <Compile Include="Utilities\Watermarker.cs" />
     <Compile Include="Utilities\Wildcard.cs" />
     <Compile Include="WebHelper.cs" />
     <Compile Include="Domain\Customers\Customer.cs" />
