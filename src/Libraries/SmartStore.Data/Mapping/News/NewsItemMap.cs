@@ -18,6 +18,10 @@ namespace SmartStore.Data.Mapping.News
             this.HasRequired(bp => bp.Language)
                 .WithMany()
                 .HasForeignKey(bp => bp.LanguageId).WillCascadeOnDelete(true);
+
+            this.HasOptional(bp => bp.Picture)
+                .WithMany()
+                .HasForeignKey(bp => bp.PictureId).WillCascadeOnDelete(false);
         }
     }
 }

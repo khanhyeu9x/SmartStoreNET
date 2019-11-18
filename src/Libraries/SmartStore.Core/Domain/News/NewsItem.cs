@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using SmartStore.Core.Domain.Localization;
+using SmartStore.Core.Domain.Media;
 using SmartStore.Core.Domain.Seo;
 using SmartStore.Core.Domain.Stores;
 
@@ -92,6 +93,10 @@ namespace SmartStore.Core.Domain.News
         /// Gets or sets the meta title
         /// </summary>
         public string MetaTitle { get; set; }
+        /// <summary>
+        /// Gets or sets the piture
+        /// </summary>
+        public int PictureId { get; set; }
 
         /// <summary>
         /// Gets or sets the news comments
@@ -106,5 +111,10 @@ namespace SmartStore.Core.Domain.News
         /// Gets or sets the language
         /// </summary>
         public virtual Language Language { get; set; }
+
+        /// <summary>
+        /// Gets or sets the picture
+        /// </summary>
+        public virtual Picture Picture { get; set; }
     }
 }
