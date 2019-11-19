@@ -26,6 +26,7 @@ using SmartStore.Web.Framework.Modelling;
 using SmartStore.Web.Framework.Security;
 using SmartStore.Web.Infrastructure.Cache;
 using SmartStore.Web.Models.Common;
+using SmartStore.Web.Models.Media;
 using SmartStore.Web.Models.News;
 
 namespace SmartStore.Web.Controllers
@@ -105,9 +106,10 @@ namespace SmartStore.Web.Controllers
         #region Utilities
 
         [NonAction]
-        protected void PrepareNewsItemModel(NewsItemModel model, NewsItem newsItem, bool prepareComments)
+        protected void PrepareNewsItemModel(NewsItemModel model, NewsItem newsItem, bool prepareComments, int pictureSize)
         {
-			Guard.NotNull(newsItem, nameof(newsItem));
+
+            Guard.NotNull(newsItem, nameof(newsItem));
 			Guard.NotNull(model, nameof(model));
 
 			Services.DisplayControl.Announce(newsItem);
@@ -122,8 +124,22 @@ namespace SmartStore.Web.Controllers
             model.Full = newsItem.Full;
 			model.CreatedOn = _dateTimeHelper.ConvertToUserTime(newsItem.CreatedOnUtc, DateTimeKind.Utc);
 			model.AddNewComment.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnNewsCommentPage;
+            // Prepare picture model.
+            var pictureInfo = _pictureService.GetPictureInfo(newsItem.PictureId);
 
-			model.Comments.AllowComments = newsItem.AllowComments;
+            model.PictureModel = new PictureModel
+            {
+                PictureId = pictureInfo?.Id ?? 0,
+                Size = pictureSize,
+                ImageUrl = _pictureService.GetUrl(pictureInfo, pictureSize),
+                FullSizeImageUrl = _pictureService.GetUrl(pictureInfo, 0, FallbackPictureType.NoFallback),
+                FullSizeImageWidth = pictureInfo?.Width,
+                FullSizeImageHeight = pictureInfo?.Height,
+                Title = string.Format(T("Media.Category.ImageLinkTitleFormat"), model.MetaTitle),
+                AlternateText = string.Format(T("Media.Category.ImageAlternateTextFormat"), model.MetaTitle)
+            };
+
+            model.Comments.AllowComments = newsItem.AllowComments;
             model.Comments.NumberOfComments = newsItem.ApprovedCommentCount;
 			model.Comments.AllowCustomersToUploadAvatars = _customerSettings.AllowCustomersToUploadAvatars;
 
@@ -162,7 +178,8 @@ namespace SmartStore.Web.Controllers
             if (!_newsSettings.Enabled || !_newsSettings.ShowNewsOnMainPage)
                 return Content("");
 
-			var cacheKey = string.Format(ModelCacheEventConsumer.HOMEPAGE_NEWSMODEL_KEY, _workContext.WorkingLanguage.Id, _storeContext.CurrentStore.Id);
+            var pictureSize = _mediaSettings.ProductThumbPictureSize;
+            var cacheKey = string.Format(ModelCacheEventConsumer.HOMEPAGE_NEWSMODEL_KEY, _workContext.WorkingLanguage.Id, _storeContext.CurrentStore.Id);
             var cachedModel = _cacheManager.Get(cacheKey, () =>
             {
 				var newsItems = _newsService.GetAllNews(_workContext.WorkingLanguage.Id, _storeContext.CurrentStore.Id, 0, _newsSettings.MainPageNewsCount);
@@ -176,7 +193,7 @@ namespace SmartStore.Web.Controllers
                         .Select(x =>
                         {
                             var newsModel = new NewsItemModel();
-                            PrepareNewsItemModel(newsModel, x, false);
+                            PrepareNewsItemModel(newsModel, x, false, pictureSize);
                             return newsModel;
                         })
                         .ToList()
@@ -200,6 +217,7 @@ namespace SmartStore.Web.Controllers
             if (!_newsSettings.Enabled)
 				return HttpNotFound();
 
+            var pictureSize = _mediaSettings.ProductThumbPictureSize;
             var model = new NewsItemListModel();
             model.WorkingLanguageId = _workContext.WorkingLanguage.Id;
 
@@ -216,7 +234,7 @@ namespace SmartStore.Web.Controllers
                 .Select(x =>
                 {
                     var newsModel = new NewsItemModel();
-                    PrepareNewsItemModel(newsModel, x, false);
+                    PrepareNewsItemModel(newsModel, x, false, pictureSize);
                     return newsModel;
                 })
                 .ToList();
@@ -279,6 +297,7 @@ namespace SmartStore.Web.Controllers
             if (!_newsSettings.Enabled)
 				return HttpNotFound();
 
+            var pictureSize = _mediaSettings.ProductThumbPictureSize;
             var newsItem = _newsService.GetNewsById(newsItemId);
             if (newsItem == null ||
                 !newsItem.Published ||
@@ -289,7 +308,7 @@ namespace SmartStore.Web.Controllers
 				return HttpNotFound();
 
             var model = new NewsItemModel();
-            PrepareNewsItemModel(model, newsItem, true);
+            PrepareNewsItemModel(model, newsItem, true, pictureSize);
 
             return View(model);
         }
@@ -303,6 +322,7 @@ namespace SmartStore.Web.Controllers
             if (!_newsSettings.Enabled)
 				return HttpNotFound();
 
+            var pictureSize = _mediaSettings.ProductThumbPictureSize;
             var newsItem = _newsService.GetNewsById(newsItemId);
             if (newsItem == null || !newsItem.Published || !newsItem.AllowComments)
 				return HttpNotFound();
@@ -347,7 +367,7 @@ namespace SmartStore.Web.Controllers
             }
 
             //If we got this far, something failed, redisplay form
-            PrepareNewsItemModel(model, newsItem, true);
+            PrepareNewsItemModel(model, newsItem, true, pictureSize);
             return View(model);
         }
 

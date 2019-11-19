@@ -96,7 +96,7 @@ namespace SmartStore.Core.Domain.News
         /// <summary>
         /// Gets or sets the piture
         /// </summary>
-        public int PictureId { get; set; }
+        public int? PictureId { get; set; }
 
         /// <summary>
         /// Gets or sets the news comments

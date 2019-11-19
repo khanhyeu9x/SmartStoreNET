@@ -72,8 +72,9 @@ namespace SmartStore.Admin.Models.News
         [SmartResourceDisplayName("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }
 
-        [SmartResourceDisplayName("Admin.ContentManagement.News.NewsItems.Fields.PitureId")]
-        public int? PitureId { get; set; }
+        [UIHint("Picture")]
+        [SmartResourceDisplayName("Admin.Catalog.Categories.Fields.Picture")]
+        public int? PictureId { get; set; }
     }
 
     public partial class NewsItemValidator : AbstractValidator<NewsItemModel>

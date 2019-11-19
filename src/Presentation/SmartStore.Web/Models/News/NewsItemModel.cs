@@ -2,6 +2,7 @@
 using FluentValidation.Attributes;
 using SmartStore.Web.Framework.Modelling;
 using SmartStore.Web.Models.Common;
+using SmartStore.Web.Models.Media;
 using System;
 
 namespace SmartStore.Web.Models.News
@@ -11,6 +12,7 @@ namespace SmartStore.Web.Models.News
     {
         public NewsItemModel()
         {
+            PictureModel = new PictureModel();
             AddNewComment = new AddNewsCommentModel();
 			Comments = new CommentListModel();
 		}
@@ -23,8 +25,9 @@ namespace SmartStore.Web.Models.News
 		public string Title { get; set; }
         public string Short { get; set; }
         public string Full { get; set; }
+        public PictureModel PictureModel { get; set; }
 
-		public AddNewsCommentModel AddNewComment { get; set; }
+        public AddNewsCommentModel AddNewComment { get; set; }
 		public CommentListModel Comments { get; set; }
     }
 

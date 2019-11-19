@@ -495,7 +495,8 @@ namespace SmartStore.Admin.Infrastructure
 				.ForMember(dest => dest.NotApprovedCommentCount, mo => mo.Ignore())
 				.ForMember(dest => dest.StartDateUtc, mo => mo.Ignore())
 				.ForMember(dest => dest.EndDateUtc, mo => mo.Ignore())
-				.ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore());
+				.ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
+                .ForMember(dest => dest.Picture, mo => mo.Ignore());
 			//polls
 			CreateMap<Poll, PollModel>()
 				.ForMember(dest => dest.StartDate, mo => mo.Ignore())
