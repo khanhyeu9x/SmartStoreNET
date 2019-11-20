@@ -28,6 +28,7 @@ using SmartStore.Web.Infrastructure.Cache;
 using SmartStore.Web.Models.Common;
 using SmartStore.Web.Models.Media;
 using SmartStore.Web.Models.News;
+using Telerik.Web.Mvc;
 
 namespace SmartStore.Web.Controllers
 {
@@ -382,6 +383,128 @@ namespace SmartStore.Web.Controllers
 				_storeContext.CurrentStore.Name);
 
             return Content(link);
+        }
+
+        #endregion
+
+        #region Products
+
+        [HttpPost, GridAction(EnableCustomBinding = true)]
+        public ActionResult ProductList(GridCommand command, int categoryId)
+        {
+            var model = new GridModel<CategoryModel.CategoryProductModel>();
+
+            if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
+            {
+                var productCategories = _categoryService.GetProductCategoriesByCategoryId(categoryId, command.Page - 1, command.PageSize, true);
+
+                var products = _productService.GetProductsByIds(productCategories.Select(x => x.ProductId).ToArray());
+
+                model.Data = productCategories.Select(x =>
+                {
+                    var productModel = new CategoryModel.CategoryProductModel
+                    {
+                        Id = x.Id,
+                        CategoryId = x.CategoryId,
+                        ProductId = x.ProductId,
+                        IsFeaturedProduct = x.IsFeaturedProduct,
+                        DisplayOrder1 = x.DisplayOrder
+                    };
+
+                    var product = products.FirstOrDefault(y => y.Id == x.ProductId);
+
+                    if (product != null)
+                    {
+                        productModel.ProductName = product.Name;
+                        productModel.Sku = product.Sku;
+                        productModel.ProductTypeName = product.GetProductTypeLabel(_localizationService);
+                        productModel.ProductTypeLabelHint = product.ProductTypeLabelHint;
+                        productModel.Published = product.Published;
+                    }
+
+                    return productModel;
+                });
+
+                model.Total = productCategories.TotalCount;
+            }
+            else
+            {
+                model.Data = Enumerable.Empty<CategoryModel.CategoryProductModel>();
+
+                NotifyAccessDenied();
+            }
+
+            return new JsonResult
+            {
+                Data = model
+            };
+        }
+
+        [GridAction(EnableCustomBinding = true)]
+        public ActionResult ProductUpdate(GridCommand command, CategoryModel.CategoryProductModel model)
+        {
+            var productCategory = _categoryService.GetProductCategoryById(model.Id);
+
+            if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
+            {
+                productCategory.IsFeaturedProduct = model.IsFeaturedProduct;
+                productCategory.DisplayOrder = model.DisplayOrder1;
+
+                _categoryService.UpdateProductCategory(productCategory);
+            }
+
+            return ProductList(command, productCategory.CategoryId);
+        }
+
+        [GridAction(EnableCustomBinding = true)]
+        public ActionResult ProductDelete(int id, GridCommand command)
+        {
+            var productCategory = _categoryService.GetProductCategoryById(id);
+            var categoryId = productCategory.CategoryId;
+
+            if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
+            {
+                _categoryService.DeleteProductCategory(productCategory);
+            }
+
+            return ProductList(command, categoryId);
+        }
+
+        [HttpPost]
+        public ActionResult ProductAdd(int newsId, int[] selectedProductIds)
+        {
+            if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
+            {
+                var products = _newsService.GetProductsByIds(selectedProductIds);
+                ProductNews productNews = null;
+                var maxDisplayOrder = -1;
+
+                foreach (var product in products)
+                {
+                    var existingProductCategories = _newsService.GetProductNewsByNewsId(newsId, 0, int.MaxValue, true);
+
+                    if (existingProductCategories.FindProductCategory(product.Id, newsId) == null)
+                    {
+                        if (maxDisplayOrder == -1 && (productNews = existingProductCategories.OrderByDescending(x => x.DisplayOrder).FirstOrDefault()) != null)
+                        {
+                            maxDisplayOrder = productNews.DisplayOrder;
+                        }
+
+                        _newsService.InsertProductNews(new ProductNews
+                        {
+                            NewsId = newsId,
+                            ProductId = product.Id,
+                            DisplayOrder = ++maxDisplayOrder
+                        });
+                    }
+                }
+            }
+            else
+            {
+                NotifyAccessDenied();
+            }
+
+            return new EmptyResult();
         }
 
         #endregion
