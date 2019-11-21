@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Attributes;
+using SmartStore.Web.Framework;
 using SmartStore.Web.Framework.Modelling;
 using SmartStore.Web.Models.Common;
 using SmartStore.Web.Models.Media;
@@ -29,6 +30,36 @@ namespace SmartStore.Web.Models.News
 
         public AddNewsCommentModel AddNewComment { get; set; }
 		public CommentListModel Comments { get; set; }
+
+        #region Nested classes
+
+        public class NewsProductModel : EntityModelBase
+        {
+            public int NewsId { get; set; }
+
+            public int ProductId { get; set; }
+
+            [SmartResourceDisplayName("Admin.Catalog.Categories.Products.Fields.Product")]
+            public string ProductName { get; set; }
+
+            [SmartResourceDisplayName("Admin.Catalog.Products.Fields.Sku")]
+            public string Sku { get; set; }
+
+            [SmartResourceDisplayName("Admin.Catalog.Products.Fields.ProductType")]
+            public string ProductTypeName { get; set; }
+            public string ProductTypeLabelHint { get; set; }
+
+            [SmartResourceDisplayName("Admin.Catalog.Products.Fields.Published")]
+            public bool Published { get; set; }
+
+            [SmartResourceDisplayName("Common.DisplayOrder")]
+            //we don't name it DisplayOrder because Telerik has a small bug 
+            //"if we have one more editor with the same name on a page, it doesn't allow editing"
+            //in our case it's category.DisplayOrder
+            public int DisplayOrder1 { get; set; }
+        }
+
+        #endregion
     }
 
     public class NewsItemValidator : AbstractValidator<NewsItemModel>

@@ -1,3 +1,4 @@
+using SmartStore.Core.Domain.Catalog;
 using SmartStore.Core.Domain.News;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;

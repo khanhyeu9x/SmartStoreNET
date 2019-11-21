@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using SmartStore.Admin.Models.News;
 using SmartStore.Core.Domain.News;
 using SmartStore.Core.Html;
+using SmartStore.Services.Catalog;
 using SmartStore.Services.Customers;
 using SmartStore.Services.Helpers;
 using SmartStore.Services.Localization;
@@ -35,10 +36,13 @@ namespace SmartStore.Admin.Controllers
 		private readonly IStoreService _storeService;
 		private readonly IStoreMappingService _storeMappingService;
 		private readonly ICustomerService _customerService;
-        
-		#endregion
+        private readonly IProductService _productService;
 
-		#region Constructors
+        private readonly ILocalizationService _localizationService;
+
+        #endregion
+
+        #region Constructors
 
         public NewsController(
             INewsService newsService, 
@@ -49,7 +53,9 @@ namespace SmartStore.Admin.Controllers
             IUrlRecordService urlRecordService,
             IStoreService storeService,
             IStoreMappingService storeMappingService,
-			ICustomerService customerService)
+			ICustomerService customerService,
+            IProductService productService,
+            ILocalizationService localizationService)
         {
             _newsService = newsService;
             _languageService = languageService;
@@ -60,7 +66,10 @@ namespace SmartStore.Admin.Controllers
 			_storeService = storeService;
 			_storeMappingService = storeMappingService;
 			_customerService = customerService;
-		}
+            _productService = productService;
+            _localizationService = localizationService;
+
+        }
 
 		#endregion 
         
@@ -371,6 +380,127 @@ namespace SmartStore.Admin.Controllers
             return Comments(filterByNewsItemId, command);
         }
 
+
+        #endregion
+
+
+        #region Products
+
+        [HttpPost, GridAction(EnableCustomBinding = true)]
+        public ActionResult ProductList(GridCommand command, int newsId)
+        {
+            var model = new GridModel<NewsItemModel.NewsProductModel>();
+
+            if (_permissionService.Authorize(StandardPermissionProvider.ManageNews))
+            {
+                var productCategories = _newsService.GetProductNewsByNewsId(newsId, command.Page - 1, command.PageSize, true);
+
+                var products = _productService.GetProductsByIds(productCategories.Select(x => x.ProductId).ToArray());
+
+                model.Data = productCategories.Select(x =>
+                {
+                    var productModel = new NewsItemModel.NewsProductModel
+                    {
+                        Id = x.Id,
+                        NewsId = x.NewsId,
+                        ProductId = x.ProductId,
+                        DisplayOrder1 = x.DisplayOrder
+                    };
+
+                    var product = products.FirstOrDefault(y => y.Id == x.ProductId);
+
+                    if (product != null)
+                    {
+                        productModel.ProductName = product.Name;
+                        productModel.Sku = product.Sku;
+                        productModel.ProductTypeName = product.GetProductTypeLabel(_localizationService);
+                        productModel.ProductTypeLabelHint = product.ProductTypeLabelHint;
+                        productModel.Published = product.Published;
+                    }
+
+                    return productModel;
+                });
+
+                model.Total = productCategories.TotalCount;
+            }
+            else
+            {
+                model.Data = Enumerable.Empty<NewsItemModel.NewsProductModel>();
+
+                NotifyAccessDenied();
+            }
+
+            return new JsonResult
+            {
+                Data = model
+            };
+        }
+
+        [GridAction(EnableCustomBinding = true)]
+        public ActionResult ProductUpdate(GridCommand command, NewsItemModel.NewsProductModel model)
+        {
+            var productNews = _newsService.GetProductNewsById(model.Id);
+
+            if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
+            {
+                productNews.DisplayOrder = model.DisplayOrder1;
+
+                _newsService.UpdateProductNews(productNews);
+            }
+
+            return ProductList(command, productNews.NewsId);
+        }
+
+        [GridAction(EnableCustomBinding = true)]
+        public ActionResult ProductDelete(int id, GridCommand command)
+        {
+            var productCategory = _newsService.GetProductNewsById(id);
+            var newsId = productCategory.NewsId;
+
+            if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
+            {
+                _newsService.DeleteProductCategory(productCategory);
+            }
+
+            return ProductList(command, newsId);
+        }
+
+        [HttpPost]
+        public ActionResult ProductAdd(int newsId, int[] selectedProductIds)
+        {
+            if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
+            {
+                var products = _productService.GetProductsByIds(selectedProductIds);
+                ProductNews productNews = null;
+                var maxDisplayOrder = -1;
+
+                foreach (var product in products)
+                {
+                    var existingProductCategories = _newsService.GetProductNewsByNewsId(newsId, 0, int.MaxValue, true);
+
+                    if (existingProductCategories.FindProductNews(product.Id, newsId) == null)
+                    {
+                        if (maxDisplayOrder == -1 && (productNews = existingProductCategories.OrderByDescending(x => x.DisplayOrder).FirstOrDefault()) != null)
+                        {
+                            maxDisplayOrder = productNews.DisplayOrder;
+                        }
+
+                        _newsService.InsertProductNews(new ProductNews
+                        {
+                            NewsId = newsId,
+                            ProductId = product.Id,
+                            DisplayOrder = ++maxDisplayOrder
+                        });
+                    }
+                }
+            }
+            else
+            {
+                NotifyAccessDenied();
+            }
+
+            return new EmptyResult();
+        }
 
         #endregion
     }

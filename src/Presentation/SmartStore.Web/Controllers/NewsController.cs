@@ -10,12 +10,14 @@ using SmartStore.Core.Domain.Localization;
 using SmartStore.Core.Domain.Media;
 using SmartStore.Core.Domain.News;
 using SmartStore.Core.Logging;
+using SmartStore.Services.Catalog;
 using SmartStore.Services.Common;
 using SmartStore.Services.Customers;
 using SmartStore.Services.Helpers;
 using SmartStore.Services.Localization;
 using SmartStore.Services.Media;
 using SmartStore.Services.News;
+using SmartStore.Services.Security;
 using SmartStore.Services.Seo;
 using SmartStore.Services.Stores;
 using SmartStore.Utilities;
@@ -56,6 +58,8 @@ namespace SmartStore.Web.Controllers
         private readonly LocalizationSettings _localizationSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly CaptchaSettings _captchaSettings;
+        private readonly IPermissionService _permissionService;
+        private readonly IProductService _productService;
 
         #endregion
 
@@ -79,7 +83,8 @@ namespace SmartStore.Web.Controllers
             NewsSettings newsSettings,
             LocalizationSettings localizationSettings,
             CustomerSettings customerSettings,
-            CaptchaSettings captchaSettings)
+            CaptchaSettings captchaSettings, IPermissionService permissionService,
+            IProductService productService)
         {
             _newsService = newsService;
             _workContext = workContext;
@@ -100,6 +105,8 @@ namespace SmartStore.Web.Controllers
             _localizationSettings = localizationSettings;
             _customerSettings = customerSettings;
             _captchaSettings = captchaSettings;
+            _permissionService = permissionService;
+            _productService = productService;
         }
 
         #endregion
@@ -387,126 +394,5 @@ namespace SmartStore.Web.Controllers
 
         #endregion
 
-        #region Products
-
-        [HttpPost, GridAction(EnableCustomBinding = true)]
-        public ActionResult ProductList(GridCommand command, int categoryId)
-        {
-            var model = new GridModel<CategoryModel.CategoryProductModel>();
-
-            if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
-            {
-                var productCategories = _categoryService.GetProductCategoriesByCategoryId(categoryId, command.Page - 1, command.PageSize, true);
-
-                var products = _productService.GetProductsByIds(productCategories.Select(x => x.ProductId).ToArray());
-
-                model.Data = productCategories.Select(x =>
-                {
-                    var productModel = new CategoryModel.CategoryProductModel
-                    {
-                        Id = x.Id,
-                        CategoryId = x.CategoryId,
-                        ProductId = x.ProductId,
-                        IsFeaturedProduct = x.IsFeaturedProduct,
-                        DisplayOrder1 = x.DisplayOrder
-                    };
-
-                    var product = products.FirstOrDefault(y => y.Id == x.ProductId);
-
-                    if (product != null)
-                    {
-                        productModel.ProductName = product.Name;
-                        productModel.Sku = product.Sku;
-                        productModel.ProductTypeName = product.GetProductTypeLabel(_localizationService);
-                        productModel.ProductTypeLabelHint = product.ProductTypeLabelHint;
-                        productModel.Published = product.Published;
-                    }
-
-                    return productModel;
-                });
-
-                model.Total = productCategories.TotalCount;
-            }
-            else
-            {
-                model.Data = Enumerable.Empty<CategoryModel.CategoryProductModel>();
-
-                NotifyAccessDenied();
-            }
-
-            return new JsonResult
-            {
-                Data = model
-            };
-        }
-
-        [GridAction(EnableCustomBinding = true)]
-        public ActionResult ProductUpdate(GridCommand command, CategoryModel.CategoryProductModel model)
-        {
-            var productCategory = _categoryService.GetProductCategoryById(model.Id);
-
-            if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
-            {
-                productCategory.IsFeaturedProduct = model.IsFeaturedProduct;
-                productCategory.DisplayOrder = model.DisplayOrder1;
-
-                _categoryService.UpdateProductCategory(productCategory);
-            }
-
-            return ProductList(command, productCategory.CategoryId);
-        }
-
-        [GridAction(EnableCustomBinding = true)]
-        public ActionResult ProductDelete(int id, GridCommand command)
-        {
-            var productCategory = _categoryService.GetProductCategoryById(id);
-            var categoryId = productCategory.CategoryId;
-
-            if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
-            {
-                _categoryService.DeleteProductCategory(productCategory);
-            }
-
-            return ProductList(command, categoryId);
-        }
-
-        [HttpPost]
-        public ActionResult ProductAdd(int newsId, int[] selectedProductIds)
-        {
-            if (_permissionService.Authorize(StandardPermissionProvider.ManageCatalog))
-            {
-                var products = _newsService.GetProductsByIds(selectedProductIds);
-                ProductNews productNews = null;
-                var maxDisplayOrder = -1;
-
-                foreach (var product in products)
-                {
-                    var existingProductCategories = _newsService.GetProductNewsByNewsId(newsId, 0, int.MaxValue, true);
-
-                    if (existingProductCategories.FindProductCategory(product.Id, newsId) == null)
-                    {
-                        if (maxDisplayOrder == -1 && (productNews = existingProductCategories.OrderByDescending(x => x.DisplayOrder).FirstOrDefault()) != null)
-                        {
-                            maxDisplayOrder = productNews.DisplayOrder;
-                        }
-
-                        _newsService.InsertProductNews(new ProductNews
-                        {
-                            NewsId = newsId,
-                            ProductId = product.Id,
-                            DisplayOrder = ++maxDisplayOrder
-                        });
-                    }
-                }
-            }
-            else
-            {
-                NotifyAccessDenied();
-            }
-
-            return new EmptyResult();
-        }
-
-        #endregion
     }
 }

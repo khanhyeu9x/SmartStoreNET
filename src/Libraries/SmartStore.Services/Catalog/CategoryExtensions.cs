@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using SmartStore.Collections;
 using SmartStore.Core.Domain.Catalog;
+using SmartStore.Core.Domain.News;
 using SmartStore.Services.Localization;
 
 namespace SmartStore.Services.Catalog
@@ -67,8 +68,25 @@ namespace SmartStore.Services.Catalog
 
             return null;
         }
+        /// <summary>
+        /// Returns a ProductNews that has the specified values
+        /// </summary>
+        /// <param name="source">Source</param>
+        /// <param name="productId">Product identifier</param>
+        /// <param name="categoryId">News identifier</param>
+        /// <returns>A ProductNews that has the specified values; otherwise null</returns>
+        public static ProductNews FindProductNews(this IList<ProductNews> source, int productId, int newsId)
+        {
+            foreach (var productNews in source)
+            {
+                if (productNews.ProductId == productId && productNews.NewsId == newsId)
+                    return productNews;
+            }
 
-		public static string GetCategoryNameIndented(this TreeNode<ICategoryNode> treeNode, 
+            return null;
+        }
+
+        public static string GetCategoryNameIndented(this TreeNode<ICategoryNode> treeNode, 
 			string indentWith = "--", 
 			int? languageId = null,
 			bool withAlias = true)

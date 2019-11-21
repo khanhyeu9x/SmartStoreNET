@@ -59,5 +59,34 @@ namespace SmartStore.Services.News
         /// </summary>
         /// <param name="newsItem">News item</param>
         void UpdateCommentTotals(NewsItem newsItem);
+
+        IPagedList<ProductNews> GetProductNewsByNewsId(int newsId, int page, int pageSize,
+            bool showHidden = false);
+
+
+        /// <summary>
+        /// Gets a product category mapping 
+        /// </summary>
+        /// <param name="productNewsId">Product category mapping identifier</param>
+        /// <returns>Product category mapping</returns>
+        ProductNews GetProductNewsById(int productNewsId);
+
+
+        /// <summary>
+        /// Inserts a product category mapping
+        /// </summary>
+        /// <param name="productNews">>Product category mapping</param>
+        void InsertProductNews(ProductNews productNews);
+
+        /// <summary>
+        /// Updates the product category mapping 
+        /// </summary>
+        /// <param name="productNews">>Product category mapping</param>
+        void UpdateProductNews(ProductNews productNews);
+        /// <summary>
+        /// Deletes a product category mapping
+        /// </summary>
+        /// <param name="productNews">Product category</param>
+        void DeleteProductCategory(ProductNews productNews);
     }
 }

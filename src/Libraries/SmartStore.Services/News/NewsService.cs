@@ -193,6 +193,31 @@ namespace SmartStore.Services.News
             UpdateNews(newsItem);
         }
 
+        public IPagedList<ProductNews> GetProductNewsByNewsId(int newsId, int page, int pageSize, bool showHidden = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ProductNews GetProductNewsById(int productNewsId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void InsertProductNews(ProductNews productNews)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateProductNews(ProductNews productNews)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeleteProductCategory(ProductNews productNews)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }
